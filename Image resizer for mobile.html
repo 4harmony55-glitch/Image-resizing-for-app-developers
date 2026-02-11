@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DropCart · Asset Resizer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0F172A;
+            --surface: #1E293B;
+            --accent: #0EA5A4;
+            --text: #F8FAFC;
+            --border: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .generator-card {
+            max-width: 800px;
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+        .title span {
+            color: var(--accent);
+        }
+        .sub {
+            color: #94A3B8;
+            font-size: 0.9rem;
+            margin-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+        }
+
+        /* Upload area */
+        .upload-area {
+            background: rgba(0,0,0,0.2);
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            padding: 36px 20px;
+            text-align: center;
+            transition: border 0.2s, background 0.2s;
+            cursor: pointer;
+            margin-bottom: 32px;
+        }
+        .upload-area:hover {
+            border-color: var(--accent);
+            background: rgba(14, 165, 164, 0.05);
+        }
+        .upload-icon {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+        .upload-text {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .upload-hint {
+            font-size: 0.8rem;
+            color: #94A3B8;
+            margin-top: 8px;
+        }
+        input[type="file"] {
+            display: none;
+        }
+
+        /* Preview panel */
+        .preview-container {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            background: var(--bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 32px;
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+        .preview-img-box {
+            width: 96px;
+            height: 96px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .preview-img-box img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .preview-info {
+            flex: 1;
+        }
+        .file-name {
+            font-weight: 600;
+            margin-bottom: 6px;
+            word-break: break-word;
+        }
+        .file-meta {
+            font-size: 0.8rem;
+            color: #94A3B8;
+        }
+
+        /* size grid */
+        .section-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #94A3B8;
+            margin-bottom: 16px;
+        }
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .dl-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--accent);
+            border-radius: 8px;
+            padding: 14px 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .dl-btn:hover {
+            background: rgba(14, 165, 164, 0.1);
+            border-color: var(--accent);
+        }
+        .dl-btn.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+            border-color: var(--border);
+            color: #94A3B8;
+        }
+
+        .note {
+            margin-top: 30px;
+            font-size: 0.8rem;
+            color: #64748B;
+            background: rgba(0,0,0,0.2);
+            padding: 16px;
+            border-radius: 12px;
+            border-left: 3px solid var(--accent);
+        }
+        .note strong {
+            color: #fff;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid var(--border);
+            margin: 24px 0;
+        }
+
+        /* helper */
+        .flex-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+
+<div class="generator-card">
+    <div class="title">
+        <span>DropCart</span> Asset Resizer
+    </div>
+    <div class="sub">
+        Upload any PNG — generate icons for manifest, stores, or folders.
+    </div>
+
+    <!-- hidden file input -->
+    <input type="file" id="fileInput" accept="image/png, image/jpeg, image/webp, image/svg+xml">
+
+    <!-- custom upload area -->
+    <div class="upload-area" id="uploadArea">
+        <div class="upload-icon">⬆️</div>
+        <div class="upload-text">Click or drag PNG here</div>
+        <div class="upload-hint">Transparent backgrounds recommended • PNG / JPEG / WebP</div>
+    </div>
+
+    <!-- preview section (hidden until image loaded) -->
+    <div id="previewPanel" style="display: none;">
+        <div class="preview-container">
+            <div class="preview-img-box">
+                <img id="previewImage" alt="preview">
+            </div>
+            <div class="preview-info">
+                <div class="file-name" id="fileName">—</div>
+                <div class="file-meta" id="fileDimensions"></div>
+                <div class="file-meta" id="fileSize"></div>
+            </div>
+        </div>
+
+        <div class="section-label">📦 Download resized assets</div>
+        <div class="btn-grid" id="buttonGrid"></div>
+
+        <div class="note">
+            <strong>📁 Assets folder ready</strong><br>
+            Downloaded files are named with <code>assets/</code> prefix — save them directly into your <code>assets</code> folder. 
+            Standard sizes: 72, 96, 128, 144, 152, 192, 384, 512.
+        </div>
+    </div>
+
+    <hr>
+    <div style="color: #94A3B8; font-size: 0.8rem; text-align: center;">
+        ⚡ Pure browser‑side — no upload servers, 100% private.
+    </div>
+</div>
+
+<script>
+    (function() {
+        const SIZES = [72, 96, 128, 144, 152, 192, 384, 512];
+
+        // DOM elements
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const previewPanel = document.getElementById('previewPanel');
+        const previewImage = document.getElementById('previewImage');
+        const fileNameEl = document.getElementById('fileName');
+        const fileDimensionsEl = document.getElementById('fileDimensions');
+        const fileSizeEl = document.getElementById('fileSize');
+        const buttonGrid = document.getElementById('buttonGrid');
+
+        // current image data
+        let currentImage = null;      // HTMLImageElement
+        let currentFileName = '';
+        let currentFileExt = '.png'; // default
+
+        // ---------- 1. trigger file input ----------
+        function openFileDialog() {
+            fileInput.click();
+        }
+
+        uploadArea.addEventListener('click', openFileDialog);
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--accent)';
+            uploadArea.style.background = 'rgba(14, 165, 164, 0.1)';
+        });
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--border)';
+            uploadArea.style.background = 'rgba(0,0,0,0.2)';
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--border)';
+            uploadArea.style.background = 'rgba(0,0,0,0.2)';
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelect(e.dataTransfer.files[0]);
+            }
+        });
+
+        // ---------- 2. handle file selection ----------
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        async function handleFileSelect(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file (PNG, JPEG, etc.)');
+                return;
+            }
+
+            currentFileName = file.name.replace(/\.[^/.]+$/, ""); // remove extension
+            const ext = file.name.split('.').pop().toLowerCase();
+            currentFileExt = ext === 'png' ? '.png' : '.png'; // force PNG output for consistency
+
+            // display file size
+            const fileSize = (file.size / 1024).toFixed(1);
+            fileSizeEl.textContent = `📦 ${fileSize} KB`;
+
+            // load image
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    currentImage = img;
+                    // update preview
+                    previewImage.src = e.target.result;
+                    fileNameEl.textContent = file.name;
+                    fileDimensionsEl.textContent = `🔲 ${img.width} × ${img.height} px`;
+
+                    // show panel
+                    previewPanel.style.display = 'block';
+
+                    // regenerate download buttons
+                    generateButtons(img);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ---------- 3. generate resized versions & download buttons ----------
+        function generateButtons(img) {
+            // clear old buttons
+            buttonGrid.innerHTML = '';
+
+            // create a hidden canvas once for resizing
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            SIZES.forEach(size => {
+                const btn = document.createElement('a');
+                btn.className = 'dl-btn';
+                btn.textContent = `${size}px`;
+
+                // attach click handler – generate PNG on demand
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+
+                    // resize image to exact square (size x size)
+                    canvas.width = size;
+                    canvas.height = size;
+
+                    // draw image, preserving aspect ratio and centering
+                    ctx.clearRect(0, 0, size, size);
+                    
+                    let drawWidth = size;
+                    let drawHeight = size;
+                    let offsetX = 0;
+                    let offsetY = 0;
+
+                    const imgRatio = img.width / img.height;
+                    if (imgRatio > 1) {
+                        // wider than square: fit height
+                        drawHeight = size;
+                        drawWidth = size * imgRatio;
+                        offsetX = (size - drawWidth) / 2;
+                    } else {
+                        // taller or square: fit width
+                        drawWidth = size;
+                        drawHeight = size / imgRatio;
+                        offsetY = (size - drawHeight) / 2;
+                    }
+
+                    ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+
+                    // generate PNG
+                    canvas.toBlob((blob) => {
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        // ---- assets/ prefix in filename ----
+                        link.download = `assets/${currentFileName}-${size}x${size}.png`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                    }, 'image/png');
+                });
+
+                buttonGrid.appendChild(btn);
+            });
+        }
+
+        // ---------- 4. optional: reset if no image ----------
+        // initialize with disabled state? we don't show buttons until upload.
+        // that's fine.
+    })();
+</script>
+
+</body>
+</html>
